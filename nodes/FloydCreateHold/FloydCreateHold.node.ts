@@ -17,7 +17,7 @@ export class FloydCreateHold implements INodeType {
     description:
       'Create an atomic hold on a time slot. Only one workflow can win; conflicts return explicit 409 outcomes.',
     defaults: {
-      name: 'Floyd Create Hold'
+      name: 'Create Hold'
     },
     inputs: ['main'],
     outputs: ['main'],

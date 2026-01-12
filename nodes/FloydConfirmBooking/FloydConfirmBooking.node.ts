@@ -17,7 +17,7 @@ export class FloydConfirmBooking implements INodeType {
     description:
       'Confirm a pending hold to finalize the booking. Converts the hold to a confirmed booking and clears the expiration.',
     defaults: {
-      name: 'Floyd Confirm Booking'
+      name: 'Confirm Booking'
     },
     inputs: ['main'],
     outputs: ['main'],

@@ -17,7 +17,7 @@ export class FloydCancelBooking implements INodeType {
     description:
       'Cancel a pending hold or confirmed booking. Releases the time slot and makes it available for other bookings.',
     defaults: {
-      name: 'Floyd Cancel Booking'
+      name: 'Cancel Booking'
     },
     inputs: ['main'],
     outputs: ['main'],
