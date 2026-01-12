@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-floyd",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "n8n community node for Floyd - atomic booking holds for AI agent workflows",
   "author": {
     "name": "Floyd",

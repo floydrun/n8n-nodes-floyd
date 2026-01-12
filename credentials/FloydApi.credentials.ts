@@ -1,4 +1,4 @@
-import { IAuthenticateGeneric, ICredentialType, INodeProperties } from 'n8n-workflow';
+import { IAuthenticateGeneric, ICredentialTestRequest, ICredentialType, INodeProperties } from 'n8n-workflow';
 
 export class FloydApi implements ICredentialType {
   name = 'floydApi';
@@ -44,6 +44,14 @@ export class FloydApi implements ICredentialType {
       headers: {
         Authorization: '={{"Bearer " + $credentials.apiKey}}'
       }
+    }
+  };
+
+  test: ICredentialTestRequest = {
+    request: {
+      baseURL: '={{$credentials.baseUrl || "https://api.floyd.run"}}',
+      url: '/v1/resources',
+      method: 'GET'
     }
   };
 }
