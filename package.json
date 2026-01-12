@@ -1,0 +1,36 @@
+{
+  "name": "n8n-nodes-floyd",
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "n8n-node dev",
+    "build": "n8n-node build",
+    "lint": "n8n-node lint",
+    "lint:fix": "n8n-node lint --fix"
+  },
+  "devDependencies": {
+    "@n8n/node-cli": "^0.17.0",
+    "prettier": "^3.7.4"
+  },
+  "n8n": {
+    "nodes": [
+      "dist/nodes/FloydCreateHold/FloydCreateHold.node.js"
+    ],
+    "credentials": [
+      "dist/credentials/FloydApi.credentials.js"
+    ]
+  },
+  "keywords": [
+    "n8n-community-node-package",
+    "n8n",
+    "floyd",
+    "booking",
+    "scheduling",
+    "calendar",
+    "voice-ai",
+    "vapi",
+    "retell"
+  ],
+  "dependencies": {
+    "n8n-workflow": "^1.120.4"
+  }
+}
