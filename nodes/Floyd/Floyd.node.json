@@ -1,0 +1,19 @@
+{
+  "node": "n8n-nodes-floyd.floyd",
+  "nodeVersion": "1.0",
+  "codexVersion": "1.0",
+  "categories": ["Productivity"],
+  "resources": {
+    "credentialDocumentation": [
+      {
+        "url": "https://docs.floyd.run"
+      }
+    ],
+    "primaryDocumentation": [
+      {
+        "url": "https://docs.floyd.run"
+      }
+    ]
+  },
+  "alias": ["booking", "hold", "reservation", "schedule"]
+}
