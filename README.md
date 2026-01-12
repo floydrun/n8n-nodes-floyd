@@ -19,12 +19,14 @@ Or in n8n: **Settings → Community Nodes → Install → `n8n-nodes-floyd`**
 1. **Get your API key:** [console.floyd.run](https://console.floyd.run) → Organization → API Keys
 2. **Get a resource ID:** Console → Resources → Create → Copy ID
 3. **Time format:** ISO 8601 with timezone (e.g., `2026-01-12T14:00:00Z`)
-4. **Create a hold:** Use Floyd Create Hold to reserve the slot
-5. **Confirm or cancel:** Use Floyd Confirm Booking (finalize) or Floyd Cancel Booking (release)
+4. **Add Floyd node:** In n8n, search for "Floyd" and select an action
+5. **Three operations:** Create Hold → Confirm Booking → Cancel Booking
 
-## Nodes
+## The Floyd Node
 
-### Floyd Create Hold
+The Floyd node provides three operations for atomic booking workflows:
+
+### Operation: Create Hold
 
 Reserve a time slot with a TTL. The hold expires automatically if not confirmed.
 
@@ -70,7 +72,7 @@ Reserve a time slot with a TTL. The hold expires automatically if not confirmed.
 
 ---
 
-### Floyd Confirm Booking
+### Operation: Confirm Booking
 
 Finalize a pending hold to convert it to a confirmed booking. Clears the expiration timer.
 
@@ -103,7 +105,7 @@ Finalize a pending hold to convert it to a confirmed booking. Clears the expirat
 
 ---
 
-### Floyd Cancel Booking
+### Operation: Cancel Booking
 
 Cancel a pending hold or confirmed booking. Releases the time slot and makes it available.
 
@@ -147,7 +149,7 @@ Complete workflow with user confirmation:
              │  User: "Book me at 2pm"
              ▼
 ┌────────────────────────┐
-│ Floyd Create Hold      │
+│ Floyd: Create Hold     │
 └────────────┬───────────┘
              │  Reserve slot (TTL: 5 min)
              ▼
@@ -166,7 +168,7 @@ Complete workflow with user confirmation:
              │      │
              Yes    No
              │      │                ┌────────────────────────┐
-             │      └──────────────▶ │ Floyd Cancel Booking   │
+             │      └──────────────▶ │ Floyd: Cancel Booking  │
              │                       └────────────┬───────────┘
              │                                    │
              │                                    ▼
@@ -175,7 +177,7 @@ Complete workflow with user confirmation:
              │                       └────────────────────────┘
              ▼
 ┌────────────────────────┐
-│ Floyd Confirm Booking  │
+│ Floyd: Confirm Booking │
 └────────────┬───────────┘
              │
              ▼
@@ -186,16 +188,16 @@ Complete workflow with user confirmation:
 
 ### Simple Confirmation Flow
 
-1. **Floyd Create Hold** → Get `bookingId`
-2. User confirms → **Floyd Confirm Booking** with `bookingId`
-3. User cancels → **Floyd Cancel Booking** with `bookingId`
+1. **Floyd: Create Hold** → Get `bookingId`
+2. User confirms → **Floyd: Confirm Booking** with `bookingId`
+3. User cancels → **Floyd: Cancel Booking** with `bookingId`
 
 ### Hold Expiration (No Action)
 
 If you don't confirm or cancel within `ttlSeconds`, the hold expires automatically:
 
 ```
-Floyd Create Hold (ttlSeconds: 300)
+Floyd: Create Hold (ttlSeconds: 300)
     │
     └─ 5 minutes pass...
     └─ Hold expires (no action needed)
@@ -235,6 +237,7 @@ The typical pattern:
 2. Create an organization and API key
 3. In n8n: **Credentials → New → Floyd API**
 4. Paste your API key
+5. **(Optional)** Toggle "Show Advanced Options" to change the Base URL (for staging/self-hosted)
 
 ## Links
 
