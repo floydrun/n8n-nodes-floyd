@@ -1,7 +1,12 @@
 {
   "name": "n8n-nodes-floyd",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "n8n community node for Floyd - atomic booking holds for AI agent workflows",
+  "author": {
+    "name": "Floyd",
+    "email": "hey@floyd.run",
+    "url": "https://floyd.run"
+  },
   "license": "MIT",
   "homepage": "https://github.com/floydrun/n8n-nodes-floyd",
   "files": [
@@ -18,6 +23,9 @@
     "prepublishOnly": "npm run build",
     "lint": "n8n-node lint",
     "lint:fix": "n8n-node lint --fix"
+  },
+  "dependencies": {
+    "n8n-workflow": "^1.120.4"
   },
   "devDependencies": {
     "@n8n/node-cli": "^0.17.0",
@@ -41,8 +49,5 @@
     "voice-ai",
     "vapi",
     "retell"
-  ],
-  "dependencies": {
-    "n8n-workflow": "^1.120.4"
-  }
+  ]
 }

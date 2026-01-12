@@ -16,6 +16,7 @@ export class Floyd implements INodeType {
     subtitle:
       '={{ $parameter.operation === "createHold" ? "Create Hold" : $parameter.operation === "confirm" ? "Confirm Booking" : "Cancel Booking" }}',
     description: 'Atomic booking holds for AI agent workflows',
+    documentationUrl: 'https://docs.floyd.run',
     defaults: {
       name: 'Floyd'
     },
