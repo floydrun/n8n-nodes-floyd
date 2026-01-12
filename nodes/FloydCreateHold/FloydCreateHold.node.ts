@@ -10,7 +10,7 @@ export class FloydCreateHold implements INodeType {
   description: INodeTypeDescription = {
     displayName: 'Floyd Create Hold',
     name: 'floydCreateHold',
-    icon: 'file:icon.svg',
+    icon: 'file:../../assets/icons/floyd-icon.svg',
     group: ['transform'],
     version: 1,
     subtitle: 'Reserve a time slot',

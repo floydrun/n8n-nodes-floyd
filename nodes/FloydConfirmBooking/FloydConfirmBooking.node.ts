@@ -10,7 +10,7 @@ export class FloydConfirmBooking implements INodeType {
   description: INodeTypeDescription = {
     displayName: 'Floyd Confirm Booking',
     name: 'floydConfirmBooking',
-    icon: 'file:icon.svg',
+    icon: 'file:../../assets/icons/floyd-icon.svg',
     group: ['transform'],
     version: 1,
     subtitle: 'Finalize a booking',

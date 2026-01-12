@@ -14,6 +14,6 @@
     "declarationMap": true,
     "sourceMap": true
   },
-  "include": ["nodes/**/*.ts", "credentials/**/*.ts"],
+  "include": ["nodes/**/*.ts", "credentials/**/*.ts", "assets/**/*"],
   "exclude": ["node_modules", "dist"]
 }
