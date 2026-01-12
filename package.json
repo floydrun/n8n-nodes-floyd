@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-floyd",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "n8n community node for Floyd - atomic booking holds for AI agent workflows",
   "author": {
     "name": "Floyd",
@@ -24,12 +24,12 @@
     "lint": "n8n-node lint",
     "lint:fix": "n8n-node lint --fix"
   },
-  "dependencies": {
-    "n8n-workflow": "^1.120.4"
-  },
   "devDependencies": {
     "@n8n/node-cli": "^0.17.0",
     "prettier": "^3.7.4"
+  },
+  "peerDependencies": {
+    "n8n-workflow": "*"
   },
   "n8n": {
     "nodes": [
