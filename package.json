@@ -1,9 +1,17 @@
 {
   "name": "n8n-nodes-floyd",
   "version": "0.1.0",
+  "description": "n8n community node for Floyd - atomic booking holds for AI agent workflows",
+  "license": "MIT",
+  "homepage": "https://github.com/floydrun/n8n-nodes-floyd",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/floydrun/n8n-nodes-floyd.git"
+  },
   "scripts": {
     "dev": "n8n-node dev",
-    "build": "n8n-node build",
+    "build": "n8n-node build && npm run copy-codex",
+    "copy-codex": "cp nodes/Floyd/Floyd.node.json dist/nodes/Floyd/",
     "lint": "n8n-node lint",
     "lint:fix": "n8n-node lint --fix"
   },
