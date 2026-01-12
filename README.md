@@ -19,8 +19,8 @@ Or in n8n: **Settings → Community Nodes → Install → `n8n-nodes-floyd`**
 1. **Get your API key:** [console.floyd.run](https://console.floyd.run) → Organization → API Keys
 2. **Get a resource ID:** Console → Resources → Create → Copy ID
 3. **Time format:** ISO 8601 with timezone (e.g., `2026-01-12T14:00:00Z`)
-4. **On success:** Call Floyd Confirm endpoint to finalize
-5. **On conflict:** Branch and offer alternative time
+4. **Create a hold:** Use Floyd Create Hold to reserve the slot
+5. **Confirm or cancel:** Use Floyd Confirm Booking (finalize) or Floyd Cancel Booking (release)
 
 ## Nodes
 
@@ -68,31 +68,142 @@ Reserve a time slot with a TTL. The hold expires automatically if not confirmed.
 }
 ```
 
-## Usage Example
+---
 
-**Voice agent booking flow:**
+### Floyd Confirm Booking
 
-1. Agent asks user for preferred time
-2. **Floyd Create Hold** → reserves the slot (5 min TTL)
-3. If conflict → offer alternative time
-4. If success → confirm with user
-5. On confirmation → call Floyd Confirm endpoint
-6. On rejection → hold expires automatically
+Finalize a pending hold to convert it to a confirmed booking. Clears the expiration timer.
+
+#### Inputs
+
+| Field       | Type   | Required | Description                           |
+| ----------- | ------ | -------- | ------------------------------------- |
+| `bookingId` | string | Yes      | The booking ID from Floyd Create Hold |
+
+#### Outputs
+
+**Success:**
+
+```json
+{
+  "bookingId": "bk_abc123",
+  "status": "confirmed",
+  "resourceId": "res_xyz",
+  "startAt": "2026-01-13T10:00:00Z",
+  "endAt": "2026-01-13T11:00:00Z",
+  "confirmedAt": "2026-01-12T16:00:00Z",
+  "requestId": "req_xyz789"
+}
+```
+
+**Errors:**
+
+- **404**: Booking not found
+- **409**: Hold expired or already confirmed
+
+---
+
+### Floyd Cancel Booking
+
+Cancel a pending hold or confirmed booking. Releases the time slot and makes it available.
+
+#### Inputs
+
+| Field       | Type   | Required | Description              |
+| ----------- | ------ | -------- | ------------------------ |
+| `bookingId` | string | Yes      | The booking ID to cancel |
+
+#### Outputs
+
+**Success:**
+
+```json
+{
+  "bookingId": "bk_abc123",
+  "status": "cancelled",
+  "resourceId": "res_xyz",
+  "startAt": "2026-01-13T10:00:00Z",
+  "endAt": "2026-01-13T11:00:00Z",
+  "cancelledAt": "2026-01-12T16:00:00Z",
+  "requestId": "req_xyz789"
+}
+```
+
+**Errors:**
+
+- **404**: Booking not found
+- **409**: Already cancelled or cannot cancel
+
+## Usage Examples
+
+### Voice Agent Booking Flow
+
+Complete workflow with user confirmation:
 
 ```
-┌─────────────────┐   ┌───────────────────┐   ┌─────────────────┐
-│ Webhook (Vapi)  │──▶│ Floyd Create Hold │──▶│ IF: conflict?   │
-└─────────────────┘   └───────────────────┘   └───────┬─────────┘
-                                                      │
-                                   ┌──────────────────┴──────────────────┐
-                                   │                                     │
-                                   ▼                                     ▼
-                        ┌─────────────────────┐               ┌─────────────────────┐
-                        │ Respond: "Booked!"  │               │ Respond: "Try 3pm?" │
-                        └─────────────────────┘               └─────────────────────┘
+┌────────────────────────┐
+│ Webhook (Vapi/Retell)  │
+└────────────┬───────────┘
+             │  User: "Book me at 2pm"
+             ▼
+┌────────────────────────┐
+│ Floyd Create Hold      │
+└────────────┬───────────┘
+             │  Reserve slot (TTL: 5 min)
+             ▼
+┌────────────────────────┐
+│ IF: conflict?          │
+└────────────┬──────┬────┘
+             │      │
+             No     Yes
+             │      │                ┌────────────────────────┐
+             │      └──────────────▶ │ Respond: "Try 3pm?"    │
+             │                       └────────────────────────┘
+             ▼
+┌────────────────────────┐
+│ Ask user to confirm    │
+└────────────┬──────┬────┘
+             │      │
+             Yes    No
+             │      │                ┌────────────────────────┐
+             │      └──────────────▶ │ Floyd Cancel Booking   │
+             │                       └────────────┬───────────┘
+             │                                    │
+             │                                    ▼
+             │                       ┌────────────────────────┐
+             │                       │ Respond: "Cancelled"   │
+             │                       └────────────────────────┘
+             ▼
+┌────────────────────────┐
+│ Floyd Confirm Booking  │
+└────────────┬───────────┘
+             │
+             ▼
+┌────────────────────────┐
+│ Respond: "Confirmed!"  │
+└────────────────────────┘
+```
+
+### Simple Confirmation Flow
+
+1. **Floyd Create Hold** → Get `bookingId`
+2. User confirms → **Floyd Confirm Booking** with `bookingId`
+3. User cancels → **Floyd Cancel Booking** with `bookingId`
+
+### Hold Expiration (No Action)
+
+If you don't confirm or cancel within `ttlSeconds`, the hold expires automatically:
+
+```
+Floyd Create Hold (ttlSeconds: 300)
+    │
+    └─ 5 minutes pass...
+    └─ Hold expires (no action needed)
 ```
 
 ## Why holds instead of check-then-book?
+
+### The Problem with Check-Then-Book
 
 The typical pattern:
 
@@ -102,13 +213,21 @@ The typical pattern:
 
 **The problem:** Between step 1 and step 3, another request can book the same slot. You get double-bookings.
 
-**With Floyd:**
+### The Floyd Solution
 
-1. Create hold (atomic, blocks the slot)
-2. Ask user to confirm (slot is protected)
-3. Confirm or let hold expire
+**Three-phase lifecycle:**
 
-Only one workflow can hold a slot. Conflicts are explicit.
+1. **Create Hold** (atomic, blocks the slot) → `status: "pending"`
+2. **Ask user to confirm** (slot is protected for `ttlSeconds`)
+3. **Confirm** (finalize) → `status: "confirmed"` OR **Cancel** (release) → `status: "cancelled"`
+
+**Benefits:**
+
+- ✅ Only one workflow can hold a slot
+- ✅ Conflicts are explicit (409 responses)
+- ✅ Automatic cleanup (holds expire after TTL)
+- ✅ Retry-safe (idempotency keys)
+- ✅ Works with voice agents, forms, multi-step workflows
 
 ## Credentials
 
@@ -125,11 +244,15 @@ Only one workflow can hold a slot. Conflicts are explicit.
 
 ## Troubleshooting
 
-| Error            | Cause                                 | Fix                          |
-| ---------------- | ------------------------------------- | ---------------------------- |
-| 409 Conflict     | Slot already held/booked              | Branch and offer alternative |
-| 422 Validation   | Bad date format or `endAt <= startAt` | Check ISO format             |
-| 401 Unauthorized | API key missing or wrong              | Check credentials            |
+| Error                            | Node            | Cause                                 | Fix                               |
+| -------------------------------- | --------------- | ------------------------------------- | --------------------------------- |
+| 409 Conflict (overlap)           | Create Hold     | Slot already held/booked              | Branch and offer alternative      |
+| 409 Conflict (hold expired)      | Confirm Booking | Hold TTL expired                      | Create new hold                   |
+| 409 Conflict (already confirmed) | Confirm Booking | Booking already finalized             | Check booking status              |
+| 409 Conflict (already cancelled) | Cancel Booking  | Booking already cancelled             | No action needed                  |
+| 404 Not Found                    | Confirm/Cancel  | Invalid booking ID                    | Verify bookingId from Create Hold |
+| 422 Validation                   | Create Hold     | Bad date format or `endAt <= startAt` | Check ISO 8601 format             |
+| 401 Unauthorized                 | All             | API key missing or wrong              | Check credentials                 |
 
 **Need help?** Include the `requestId` from the output when contacting support.
 

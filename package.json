@@ -13,7 +13,9 @@
   },
   "n8n": {
     "nodes": [
-      "dist/nodes/FloydCreateHold/FloydCreateHold.node.js"
+      "dist/nodes/FloydCreateHold/FloydCreateHold.node.js",
+      "dist/nodes/FloydConfirmBooking/FloydConfirmBooking.node.js",
+      "dist/nodes/FloydCancelBooking/FloydCancelBooking.node.js"
     ],
     "credentials": [
       "dist/credentials/FloydApi.credentials.js"
